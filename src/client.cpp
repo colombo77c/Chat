@@ -12,8 +12,6 @@
 
 using namespace std;
 
-void killHandler(int signal);
-
 Client::Client(string host, int port) {
 	m_hostName = host;
 	m_port = port;
@@ -45,8 +43,6 @@ void Client::Start() {
 	}
 
 	m_socketDescriptor = serverSocketDescriptor;
-
-	//signal(SIGINT, killHandler);
 
 	PromptLogin();
 	StartChat();
@@ -89,6 +85,10 @@ void Client::StartChat() {
 		FD_SET(m_socketDescriptor, &fileDescriptors);
 
 		int descriptor = select(m_socketDescriptor + 1, &fileDescriptors, NULL, NULL, NULL);
+		if(descriptor < 0) {
+			chatting = false;
+			cout << "There was an error. Exiting" << endl;
+		}
 
 		if(FD_ISSET(STDIN_FILENO, &fileDescriptors)) {
 			chatting = HandleOutgoingMessage();
@@ -128,9 +128,5 @@ bool Client::HandleReceivedMessage() {
 		return false;
 	}
 	return true;
-}
-
-void killHandler(int signal) {
-	cout << "Type 'exit' to quit" << endl;
 }
 

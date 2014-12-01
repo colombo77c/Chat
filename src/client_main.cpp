@@ -7,6 +7,7 @@ using namespace std;
 
 void PrintError(string errorMessage);
 void PrintUsage();
+void killHandler(int signal);
 
 int main(int argc, char **argv) {
 	int portNumber = -1;
@@ -36,4 +37,8 @@ void PrintError(string errorMessage) {
 
 void PrintUsage() {
 	cout << "server [host] [port]" << endl;
+}
+
+void killHandler(int signal) {
+	cout << "Shutting down the server ..." << endl;
 }
