@@ -1,5 +1,5 @@
-#ifndef SERVER_H
-#define SERVER_H
+#ifndef CHAT_SERVER_H
+#define CHAT_SERVER_H
 
 #include <iostream>
 #include <map>

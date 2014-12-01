@@ -1,5 +1,5 @@
-#ifndef MESSAGE_H
-#define MESSAGE_H
+#ifndef CHAT_MESSAGE_H
+#define CHAT_MESSAGE_H
 
 #include <string>
 #include <iostream>

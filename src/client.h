@@ -1,5 +1,5 @@
-#ifndef CLIENT_H
-#define CLIENT_H
+#ifndef CHAT_CLIENT_H
+#define CHAT_CLIENT_H
 
 #include <string>
 #include <iostream>

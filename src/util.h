@@ -1,5 +1,5 @@
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef CHAT_UTIL_H
+#define CHAT_UTIL_H
 
 #include <iostream>
 #include <string>
