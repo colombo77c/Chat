@@ -1,10 +1,11 @@
+#include "util.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
 #include <unistd.h>
 #include <cstring>
 
-#include "util.h"
 
 using namespace std;
 

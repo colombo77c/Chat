@@ -1,7 +1,8 @@
+#include "server.h"
+
 #include <string>
 #include <iostream>
 
-#include "server.h"
 
 void PrintError(string errorMessage);
 void PrintUsage();

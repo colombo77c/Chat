@@ -1,3 +1,5 @@
+#include "server.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -10,7 +12,6 @@
 #include <cstring>
 #include <set>
 
-#include "server.h"
 #include "util.h"
 #include "message.h"
 

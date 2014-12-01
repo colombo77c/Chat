@@ -1,3 +1,5 @@
+#include "client.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -8,7 +10,6 @@
 #include <signal.h>
 
 #include "message.h"
-#include "client.h"
 
 using namespace std;
 

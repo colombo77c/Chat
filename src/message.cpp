@@ -1,9 +1,10 @@
+#include "message.h"
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <sstream>
 
 #include "util.h"
-#include "message.h"
 
 
 using namespace std;
