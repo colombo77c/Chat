@@ -111,7 +111,7 @@ void Server::Login(Message *message, int sendingDescriptor) {
 	BroadcastMessage(&welcome, sendingDescriptor);
 
 	m_messagesLock.lock();
-	for(vector<string>::iterator iter = m_pastMessages.end(); iter != m_pastMessages.begin(); --iter) {
+	for(vector<string>::iterator iter = m_pastMessages.rbegin(); iter != m_pastMessages.rend(); ++iter) {
 		Message pastMessage;
 		pastMessage.SetBody(*iter);
 		pastMessage.Write(sendingDescriptor);
