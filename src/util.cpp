@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <unistd.h>
+#include <cstring>
 
 #include "util.h"
 
