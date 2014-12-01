@@ -56,7 +56,7 @@ void Server::Start() {
 	serverSocket.sin_addr.s_addr = INADDR_ANY;
 	serverSocket.sin_port = htons(m_port);
 
-	int bindResult = bind(serverSocketDescriptor, 
+	int bindResult = ::bind(serverSocketDescriptor, 
 		(struct sockaddr *) &serverSocket,
 		sizeof(serverSocket));
 	if(bindResult < 0) {
@@ -111,7 +111,7 @@ void Server::Login(Message *message, int sendingDescriptor) {
 	BroadcastMessage(&welcome, sendingDescriptor);
 
 	m_messagesLock.lock();
-	for(vector<string>::iterator iter = m_pastMessages.rbegin(); iter != m_pastMessages.rend(); ++iter) {
+	for(vector<string>::reverse_iterator iter = m_pastMessages.rbegin(); iter != m_pastMessages.rend(); ++iter) {
 		Message pastMessage;
 		pastMessage.SetBody(*iter);
 		pastMessage.Write(sendingDescriptor);
