@@ -11,6 +11,7 @@ chat server for others to connect to.
 
 #include <iostream>
 #include <map>
+#include <set>
 #include <vector>
 #include <mutex>
 
@@ -27,6 +28,7 @@ Example usage:
 Server server(9000);
 server.Start();
 -----------------------------------------------------------*/
+
 class Server {
 private:
 	int m_port;
@@ -34,10 +36,13 @@ private:
 	map<string, int> m_reverseChatMap;
 	int m_numSavedMessages;
 	vector<string> m_pastMessages;
+	set<pthread_t> m_threadSet;
+	volatile bool m_isRunning;
 
 	//std:: is required to compile on eniac. Who knows why
 	std::mutex m_messagesLock;
 	std::mutex m_mapLock;
+	std::mutex m_threadSetLock;
 
 	void Login(Message *m, int sendingDescriptor);
 	void Logout(Message *m, int sendingDescriptor);
@@ -45,10 +50,16 @@ private:
 	void PrivateMessage(Message *m, int sendingDescriptor);
 	bool HandleMessage(Message *m, int sendingDescriptor);
 	void HandleConn(Server *server, int fileDescriptor);
+
+	void AddThread(pthread_t thread);
+	void RemoveThread(pthread_t thread);
+
+	bool IsRunning();
 	static void *HandleConnection(void *data);
 public:
 	Server(int port);
 	void Start();
+	void Stop();
 
 	void SetNumSavedMessages(int num);
 	int GetNumSavedMessages();

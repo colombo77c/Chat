@@ -45,11 +45,6 @@ typedef struct Connection {
 	Server *server;
 } Connection;
 
-/*-----------------------------------------------------------
-Declares a signal handling function used to gracefully shutdown
-the server
------------------------------------------------------------*/
-void killHandler(int signal);
 
 
 /*-----------------------------------------------------------
@@ -93,6 +88,7 @@ The specific steps in the process of starting the server are:
 
 -----------------------------------------------------------*/
 void Server::Start() {
+	m_isRunning = true;
 	/*-----------------------------------------------------------
 	Creating socket file descriptor
 	See:
@@ -139,7 +135,7 @@ void Server::Start() {
 	-----------------------------------------------------------*/
 	int acceptedSocketDescriptor;
 	int clientSocketSize = sizeof(clientSocket);
-	while((acceptedSocketDescriptor = 
+	while(m_isRunning && (acceptedSocketDescriptor = 
 		accept(serverSocketDescriptor, 
 			(struct sockaddr *)&clientSocket, 
 			(socklen_t*) &clientSocketSize))) {
@@ -156,14 +152,23 @@ void Server::Start() {
 			Server::HandleConnection, 
 			(void*) conn);
 		if(threadResult < 0) {
-			Message *error = new Message;
-			error->SetType(SERVER_ERROR);
-			error->SetBody("Sorry, there was an error handling your connection. Exiting now");
-			Message::Write(error, acceptedSocketDescriptor);
-			delete error;
+			Message error;
+			error.SetType(SERVER_ERROR);
+			error.SetBody("Sorry, there was an error handling your connection. Exiting now");
+			error.Write(acceptedSocketDescriptor);
 		}
-		
 	}
+}
+
+void Server::Stop() {
+	cout << "Stopping server ..." << endl;
+	m_isRunning = false;
+	for(set<pthread_t>::iterator iter = m_threadSet.begin(); 
+		iter != m_threadSet.end();
+		++iter) {
+		pthread_join(*iter, NULL);
+	}
+	cout << "Server successfully stopped" << endl;
 }
 
 /*-----------------------------------------------------------
@@ -272,6 +277,16 @@ void Server::BroadcastMessage(Message *message, int sendingDescriptor) {
 	}
 }
 
+
+/*-----------------------------------------------------------
+Handles sending a private message to a specified user. The message
+should be of the form "[username]:[message]". 
+
+@param message - The message to be sent
+
+@param sendingDescriptor - File descriptor that the user is 
+	connected to the server on.
+-----------------------------------------------------------*/
 void Server::PrivateMessage(Message *message, int sendingDescriptor) {
 	string sendingUser = m_chatMap[sendingDescriptor];
 	string body = message->GetBody();
@@ -342,15 +357,15 @@ void* Server::HandleConnection(void *data) {
 	int socketDescriptor = conn->socketDescriptor;
 	Server *server = conn->server;
 
-	bool isRunning = true;
+	bool threadRunning = true;
 	Message *receivedMessage;
 
 	/*-----------------------------------------------------------
 	Main loop of chat program. Listen for new Message's on this
 	connections socket and 
 	-----------------------------------------------------------*/
-	while(isRunning && (receivedMessage = Message::Read(socketDescriptor))) {
-		isRunning = server->HandleMessage(receivedMessage, socketDescriptor);
+	while(threadRunning && server->IsRunning() && (receivedMessage = Message::Read(socketDescriptor))) {
+		threadRunning = server->HandleMessage(receivedMessage, socketDescriptor);
 		delete receivedMessage;
 	}
 
@@ -362,16 +377,38 @@ void* Server::HandleConnection(void *data) {
 	-----------------------------------------------------------*/
 	shutdown(socketDescriptor, SHUT_RDWR);
 	close(socketDescriptor);
-
 	free(conn);
+
+	pthread_t threadId = pthread_self();
+	server->RemoveThread(threadId);
 
 	pthread_exit(NULL);
 }
 
+/*-----------------------------------------------------------
+Add a thread to the servers thread set. This helps the server
+keep track of the running threads.
+
+@param thread - The thread to be added
+-----------------------------------------------------------*/
+void Server::AddThread(pthread_t thread) {
+	m_threadSetLock.lock();
+	m_threadSet.insert(thread);
+	m_threadSetLock.unlock();
+}
 
 /*-----------------------------------------------------------
-Signal handler that gracefully shuts down the server.	
------------------------------------------------------------*/
-void killHandler(int signal) {
+Remove a thread from the servers thread set. This helps the 
+server keep track of the running threads.	
 
+@param thread - The thread to be removed
+-----------------------------------------------------------*/
+void Server::RemoveThread(pthread_t thread) {
+	m_threadSetLock.lock();
+	m_threadSet.erase(thread);
+	m_threadSetLock.unlock();
+}
+
+bool Server::IsRunning() {
+	return m_isRunning;
 }

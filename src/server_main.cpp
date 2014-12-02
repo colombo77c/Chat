@@ -11,10 +11,16 @@ initialize a Server instance.
 
 
 const string ERROR_MESSAGE = "There was an error starting the server: ";
-
+Server *server = NULL;
 
 void PrintError(string errorMessage);
 void PrintUsage();
+
+/*-----------------------------------------------------------
+Declares a signal handling function used to gracefully shutdown
+the server
+-----------------------------------------------------------*/
+void killHandler(int signal);
 
 
 /*-----------------------------------------------------------
@@ -29,13 +35,13 @@ int main(int argc, char **argv) {
 		portNumber = atoi(argv[1]);
 	}
 
-	Server server(portNumber);
+	server = new Server(portNumber);
 	try {
-
+		//signal(SIGINT, killHandler);
 		/*-----------------------------------------------------------
 		Attempt to start the server
 		-----------------------------------------------------------*/
-		server.Start();
+		server->Start();
 	} catch(exception& e) {
 
 		cout << ERROR_MESSAGE << endl;
@@ -43,7 +49,7 @@ int main(int argc, char **argv) {
 
 	}
 	
-
+	delete server;
 	cout << endl << "Shutting down the server ..." << endl;
 }
 
@@ -55,4 +61,11 @@ void PrintError(string errorMessage) {
 
 void PrintUsage() {
 	cout << "server [port]" << endl;
+}
+
+/*-----------------------------------------------------------
+Signal handler that gracefully shuts down the server.	
+-----------------------------------------------------------*/
+void killHandler(int signal) {
+	server->Stop();
 }
