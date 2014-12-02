@@ -16,6 +16,7 @@ accordingly.
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdexcept>
 #include <iostream>
 #include <sys/socket.h>
 #include <netinet/in.h>

@@ -6,6 +6,7 @@ which is used to connect to chat servers.
 #include "client.h"
 
 #include <stdio.h>
+#include <stdexcept>
 #include <stdlib.h>
 #include <iostream>
 #include <sys/socket.h>

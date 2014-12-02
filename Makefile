@@ -1,4 +1,4 @@
-COMPILER=g++ -g -std=c++11 -Wall
+COMPILER=clang++ -g -std=c++11 -Wall
 ROOT=$(shell pwd)
 SRC=src
 BIN=bin
