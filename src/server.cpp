@@ -184,6 +184,7 @@ void Server::Login(Message *message, int sendingDescriptor) {
 	cout << sendingDescriptor << endl;
 
 	m_chatMap[sendingDescriptor] = username;
+	m_reverseChatMap[username] = sendingDescriptor;
 
 	Message welcome;
 	welcome.SetBody("Joined the chat!");
@@ -262,8 +263,39 @@ void Server::BroadcastMessage(Message *message, int sendingDescriptor) {
 	m_messagesLock.unlock();
 	
 	if(message->GetType() == LOGOUT) {
-		map<int, string>::iterator it = m_chatMap.find(sendingDescriptor);
-		m_chatMap.erase(it);
+		map<int, string>::iterator chatIter = m_chatMap.find(sendingDescriptor);
+		string username = chatIter->second;
+		m_chatMap.erase(chatIter);
+
+		map<string, int>::iterator reverseChatIter = m_reverseChatMap.find(username);
+		m_reverseChatMap.erase(reverseChatIter);
+	}
+}
+
+void Server::PrivateMessage(Message *message, int sendingDescriptor) {
+	string sendingUser = m_chatMap[sendingDescriptor];
+	string body = message->GetBody();
+	size_t firstIndex = body.find_first_of(":");
+
+	Message error;
+	if(firstIndex == string::npos) {
+		error.SetBody("Message \"" + body + "\" was badly formatted");
+		error.Write(sendingDescriptor);
+	} else {
+		string username = body.substr(0, firstIndex);
+		if(firstIndex + 1 < body.length()) {
+			string privateMessageBody = body.substr(firstIndex + 1, string::npos);
+			map<string,int>::iterator find_it = m_reverseChatMap.find(username);
+			if(find_it != m_reverseChatMap.end()) {
+				int privateSocket = find_it->second;
+				Message privateMessage;
+				privateMessage.SetBody("private-" + sendingUser + ": " + privateMessageBody);
+				privateMessage.Write(privateSocket);
+			} else {
+				error.SetBody("Username '" + username + "' not found");
+				error.Write(sendingDescriptor);
+			}
+		}
 	}
 }
 
@@ -290,6 +322,8 @@ bool Server::HandleMessage(Message *message, int sendingDescriptor) {
 	} else if(type == LOGOUT) {
 		Logout(message, sendingDescriptor);
 		return false;
+	} else if(type == PRIVATE_MESSAGE) {
+		PrivateMessage(message, sendingDescriptor);
 	} else {
 		BroadcastMessage(message, sendingDescriptor);
 	}

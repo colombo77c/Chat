@@ -25,7 +25,8 @@ MessageType describes what the message's purpose is
 enum MessageType {
 	LOGIN,
 	LOGOUT,
-	MESSAGE,
+	BROADCAST_MESSAGE,
+	PRIVATE_MESSAGE,
 	SERVER_ERROR,
 	CLIENT_ERROR
 };

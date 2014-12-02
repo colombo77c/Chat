@@ -15,12 +15,15 @@ which is used to connect to chat servers.
 #include <unistd.h>
 #include <signal.h>
 
+#include "util.h"
 #include "message.h"
 
 using namespace std;
 
 const string SOCKET_EXCEPTION = "Error creating server socket, please check your permissions";
 const string CONN_EXCEPTION = "Error connecting to server";
+const string PRIVATE_PREFIX = "private-";
+const int PRIVATE_PREFIX_LENGTH = 8;
 
 /*-----------------------------------------------------------
 Constructs a Client instance that will attempt to connect to a
@@ -173,8 +176,11 @@ bool Client::HandleOutgoingMessage() {
 		m->SetBody(GetUsername());
 		m->SetType(LOGOUT);
 		shouldContinue = false;
+	} else if(StartsWith(message, PRIVATE_PREFIX)) {
+		m->SetBody(message.substr(PRIVATE_PREFIX_LENGTH, string::npos));
+		m->SetType(PRIVATE_MESSAGE);
 	} else {
-		m->SetType(MESSAGE);
+		m->SetType(BROADCAST_MESSAGE);
 	}
 
 	if(message != "") {

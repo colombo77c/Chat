@@ -31,3 +31,17 @@ bool WriteUnix(int fileDescriptor, string text) {
 	size_t bytesWritten = write(fileDescriptor, c_text, length);
 	return bytesWritten == length;
 }
+
+/*-----------------------------------------------------------
+Checks if the string starts with the given prefix
+
+@param str - The string to check for prefix in
+
+@param prefix - The prefix to check for
+
+@return true if 'str' starts with 'prefix', false otherwise
+-----------------------------------------------------------*/
+bool StartsWith(string str, string prefix) {
+	int result = str.compare(0, prefix.length(), prefix);
+	return (result == 0);
+}

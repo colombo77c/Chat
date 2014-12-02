@@ -13,4 +13,6 @@ using namespace std;
 
 bool WriteUnix(int fileDescriptor, string text);
 
+bool StartsWith(string str, string prefix);
+
 #endif

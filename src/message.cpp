@@ -34,7 +34,7 @@ Constructs a Message object with default values
 -----------------------------------------------------------*/
 Message::Message() {
 	SetBody(DEFAULT_BODY);
-	SetType(MESSAGE);
+	SetType(BROADCAST_MESSAGE);
 }
 
 /*-----------------------------------------------------------

@@ -31,6 +31,7 @@ class Server {
 private:
 	int m_port;
 	map<int, string> m_chatMap;
+	map<string, int> m_reverseChatMap;
 	int m_numSavedMessages;
 	vector<string> m_pastMessages;
 
@@ -41,6 +42,7 @@ private:
 	void Login(Message *m, int sendingDescriptor);
 	void Logout(Message *m, int sendingDescriptor);
 	void BroadcastMessage(Message *m, int sendingDescriptor);
+	void PrivateMessage(Message *m, int sendingDescriptor);
 	bool HandleMessage(Message *m, int sendingDescriptor);
 	void HandleConn(Server *server, int fileDescriptor);
 	static void *HandleConnection(void *data);
