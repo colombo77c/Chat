@@ -1,3 +1,8 @@
+/*-----------------------------------------------------------
+
+This file contains the implementation of the Client class 
+which is used to connect to chat servers.
+-----------------------------------------------------------*/
 #include "client.h"
 
 #include <stdio.h>
@@ -13,26 +18,46 @@
 
 using namespace std;
 
+const string SOCKET_EXCEPTION = "Error creating server socket, please check your permissions";
+const string CONN_EXCEPTION = "Error connecting to server";
+
+/*-----------------------------------------------------------
+Constructs a Client instance that will attempt to connect to a
+server at 'host' on port 'port'.
+
+@param host - The dotted quad ip address of the server the client
+	should connect to
+
+@param port - The port that the client should connect on
+-----------------------------------------------------------*/
 Client::Client(string host, int port) {
 	m_hostName = host;
 	m_port = port;
 }
 
+
+/*-----------------------------------------------------------
+Starts the client by attempting to connect to the chat server
+and starting the chat loop.
+-----------------------------------------------------------*/
 void Client::Start() {
-	/*********************************
-	*** Creating socket file descriptor
-	*** http://linux.die.net/man/2/socket
-	**********************************/
+
+	/*-----------------------------------------------------------
+	Creating socket file descriptor
+	See:
+		http://linux.die.net/man/2/socket
+	-----------------------------------------------------------*/
 	int serverSocketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
 	if(serverSocketDescriptor < 0) {
-		throw "Error creating server socket, please check your permissions";
+		throw runtime_error(SOCKET_EXCEPTION);
 	}
 
-	/*********************************
-	*** Binding socket to given port
-	*** http://linux.die.net/man/2/bind
-	*** http://man7.org/linux/man-pages/man7/ip.7.html
-	**********************************/
+	/*-----------------------------------------------------------
+	Binding socket to given port
+	See:
+		http://linux.die.net/man/2/bind
+		http://man7.org/linux/man-pages/man7/ip.7.html
+	-----------------------------------------------------------*/
 	struct sockaddr_in clientSocket;
 	clientSocket.sin_family = AF_INET;
 	clientSocket.sin_port = htons(m_port);
@@ -40,7 +65,7 @@ void Client::Start() {
 
 	int connectResult = connect(serverSocketDescriptor, (struct sockaddr *) &clientSocket, sizeof(clientSocket));
 	if(connectResult < 0) {
-		throw "Error connecting to server";
+		throw runtime_error(CONN_EXCEPTION);
 	}
 
 	m_socketDescriptor = serverSocketDescriptor;
@@ -52,14 +77,25 @@ void Client::Start() {
 	close(serverSocketDescriptor);
 }
 
+/*-----------------------------------------------------------
+@param username - The username of the current user
+-----------------------------------------------------------*/
 void Client::SetUsername(string username) {
 	m_username = username;
 }
 
+
+/*-----------------------------------------------------------
+@return - The username of the current user
+-----------------------------------------------------------*/
 string Client::GetUsername() {
 	return m_username;
 }
 
+/*-----------------------------------------------------------
+Prompts the user to enter their username and collects their
+input.
+-----------------------------------------------------------*/
 void Client::PromptLogin() {
 	cout << "Please enter your username: ";
 	string username;
@@ -75,22 +111,38 @@ void Client::PromptLogin() {
 	login->Write(m_socketDescriptor);
 }
 
+/*-----------------------------------------------------------
+Starts the main chat loop. Listens for data both from the user's
+input as well as incoming messages on the chat socket.
+-----------------------------------------------------------*/
 void Client::StartChat() {
 	bool chatting = true;
 
 	fd_set fileDescriptors;
 	while(chatting) {
 		cout << "> " << flush;
+
+		/*-----------------------------------------------------------
+		Create a file descriptor set to be used with the 'select' system
+		call.
+		-----------------------------------------------------------*/
 		FD_ZERO(&fileDescriptors);
 		FD_SET(STDIN_FILENO, &fileDescriptors);
 		FD_SET(m_socketDescriptor, &fileDescriptors);
 
+		/*-----------------------------------------------------------
+		Listen for the first of either user input or new messages over
+		the chat socket
+		-----------------------------------------------------------*/
 		int descriptor = select(m_socketDescriptor + 1, &fileDescriptors, NULL, NULL, NULL);
 		if(descriptor < 0) {
 			chatting = false;
 			cout << "There was an error. Exiting" << endl;
 		}
 
+		/*-----------------------------------------------------------
+		Determine the source of the input and respond accordingly
+		-----------------------------------------------------------*/
 		if(FD_ISSET(STDIN_FILENO, &fileDescriptors)) {
 			chatting = HandleOutgoingMessage();
 		} else {
@@ -99,6 +151,15 @@ void Client::StartChat() {
 	}
 }
 
+
+/*-----------------------------------------------------------
+Gets the user's input from STDIN, constructs a Message object
+and writes that object to the socket. This function is called
+when the user types a new message into their console.
+
+@return true if the chat loop should continue and false if the 
+	loop should exit
+-----------------------------------------------------------*/
 bool Client::HandleOutgoingMessage() {
 	string message;
 	getline(cin, message);
@@ -121,6 +182,14 @@ bool Client::HandleOutgoingMessage() {
 	return shouldContinue;
 }
 
+/*-----------------------------------------------------------
+Gets a new message from the chat socket and writes the message
+to STDOUT. This function is called when the user receives a new
+message from the chat server.
+
+@return true if the chat loop should continue and false if the 
+	loop should exit
+-----------------------------------------------------------*/
 bool Client::HandleReceivedMessage() {
 	Message *receivedMessage = Message::Read(m_socketDescriptor);
 	cout << receivedMessage->GetBody() << endl;

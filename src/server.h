@@ -1,3 +1,11 @@
+/*-----------------------------------------------------------
+
+This file declares the Server class which is used to create a 
+chat server for others to connect to.
+-----------------------------------------------------------*/
+
+
+
 #ifndef CHAT_SERVER_H
 #define CHAT_SERVER_H
 
@@ -10,7 +18,15 @@
 
 using namespace std;
 
+/*-----------------------------------------------------------
+A chat server that others can connect to. Binds to 
+localhost (127.0.0.1) at the port specified.
 
+Example usage:
+
+Server server(9000);
+server.Start();
+-----------------------------------------------------------*/
 class Server {
 private:
 	int m_port;
@@ -25,6 +41,7 @@ private:
 	void Login(Message *m, int sendingDescriptor);
 	void Logout(Message *m, int sendingDescriptor);
 	void BroadcastMessage(Message *m, int sendingDescriptor);
+	bool HandleMessage(Message *m, int sendingDescriptor);
 	void HandleConn(Server *server, int fileDescriptor);
 	static void *HandleConnection(void *data);
 public:

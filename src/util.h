@@ -1,3 +1,8 @@
+/*-----------------------------------------------------------
+
+This file contains the declarations of utility functions
+-----------------------------------------------------------*/
+
 #ifndef CHAT_UTIL_H
 #define CHAT_UTIL_H
 

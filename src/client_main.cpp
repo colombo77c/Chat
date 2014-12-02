@@ -1,3 +1,9 @@
+/*-----------------------------------------------------------
+This file contains the main method for the client executable.
+A port number and host name are read from the program arguments 
+and used to initialize a Client instance 
+-----------------------------------------------------------*/
+
 #include "client.h"
 
 #include <string>
@@ -5,11 +11,15 @@
 
 
 using namespace std;
+const string ERROR_MESSAGE = "There was an error starting the client: ";
 
 void PrintError(string errorMessage);
 void PrintUsage();
-void killHandler(int signal);
 
+
+/*-----------------------------------------------------------
+Main method of client executable
+-----------------------------------------------------------*/
 int main(int argc, char **argv) {
 	int portNumber = -1;
 	string hostName = "";
@@ -21,11 +31,20 @@ int main(int argc, char **argv) {
 		portNumber = atoi(argv[2]);
 	}
 
+
+	/*-----------------------------------------------------------
+	Create the client instance with the given host name and port.
+	-----------------------------------------------------------*/
 	Client client(hostName, portNumber);
 	try {
+
+		/*-----------------------------------------------------------
+		Attempt to start the client
+		-----------------------------------------------------------*/
 		client.Start();
-	} catch(string exception) {
-		cout << exception << endl;
+	} catch(exception& e) {
+		cout << ERROR_MESSAGE << endl;
+		cout << e.what() << endl;
 	}
 	
 }
@@ -40,6 +59,3 @@ void PrintUsage() {
 	cout << "server [host] [port]" << endl;
 }
 
-void killHandler(int signal) {
-	cout << "Shutting down the server ..." << endl;
-}

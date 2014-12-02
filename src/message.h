@@ -1,3 +1,9 @@
+/*-----------------------------------------------------------
+This file defines the Message class. Server and client instances
+use Messages to communicate. The Message class also defines 
+Read and Write functions for serialization/deserialization. 
+-----------------------------------------------------------*/
+
 #ifndef CHAT_MESSAGE_H
 #define CHAT_MESSAGE_H
 
@@ -6,10 +12,16 @@
 
 using namespace std;
 
+
+/*-----------------------------------------------------------
+The largest message body allowed
+-----------------------------------------------------------*/
 #define MAX_BODY_LENGTH 1024
-#define MAX_ERROR_LENGTH 1024
 
 
+/*-----------------------------------------------------------
+MessageType describes what the message's purpose is
+-----------------------------------------------------------*/
 enum MessageType {
 	LOGIN,
 	LOGOUT,
@@ -18,11 +30,13 @@ enum MessageType {
 	CLIENT_ERROR
 };
 
+/*-----------------------------------------------------------
+Messages have a body and type and can be serialized/deserialized
+in order to be sent over a socket. 
+-----------------------------------------------------------*/
 class Message {
 private:
 	string m_body;
-	string m_error;
-	bool m_hasError;
 	MessageType m_type;
 
 public:
@@ -30,10 +44,6 @@ public:
 
 	string GetBody();
 	void SetBody(string body);
-
-	string GetError();
-	void SetError(string error);
-	bool HasError();
 
 	MessageType GetType();
 	void SetType(MessageType type);
