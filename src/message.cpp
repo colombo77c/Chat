@@ -85,7 +85,7 @@ bool Message::Write(int fileDescriptor) {
 
 
 /*-----------------------------------------------------------
-Attempts to read a new Message from the given file descriptor.
+Attempts to deserialize a new Message from the given file descriptor.
 This function will block while waiting for data to be available.
 -----------------------------------------------------------*/
 Message* Message::Read(int fileDescriptor) {

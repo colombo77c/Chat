@@ -74,6 +74,8 @@ void Client::Start() {
 
 	m_socketDescriptor = serverSocketDescriptor;
 
+	cout << "Connected to server ..." << endl;
+
 	PromptLogin();
 	StartChat();
 

@@ -135,6 +135,7 @@ void Server::Start() {
 	-----------------------------------------------------------*/
 	int acceptedSocketDescriptor;
 	int clientSocketSize = sizeof(clientSocket);
+	cout << "Listening for connections ..." << endl;
 	while(m_isRunning && (acceptedSocketDescriptor = 
 		accept(serverSocketDescriptor, 
 			(struct sockaddr *)&clientSocket, 
@@ -191,11 +192,6 @@ void Server::Login(Message *message, int sendingDescriptor) {
 	m_chatMap[sendingDescriptor] = username;
 	m_reverseChatMap[username] = sendingDescriptor;
 
-	Message welcome;
-	welcome.SetBody("Joined the chat!");
-	welcome.SetType(LOGIN);
-	BroadcastMessage(&welcome, sendingDescriptor);
-
 	m_messagesLock.lock();
 	for(vector<string>::reverse_iterator iter = m_pastMessages.rbegin(); 
 		iter != m_pastMessages.rend(); 
@@ -205,6 +201,11 @@ void Server::Login(Message *message, int sendingDescriptor) {
 		pastMessage.Write(sendingDescriptor);
 	}
 	m_messagesLock.unlock();
+
+	Message welcome;
+	welcome.SetBody("Joined the chat!");
+	welcome.SetType(LOGIN);
+	BroadcastMessage(&welcome, sendingDescriptor);
 	
 }
 
