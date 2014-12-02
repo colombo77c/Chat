@@ -122,7 +122,7 @@ Starts the main chat loop. Listens for data both from the user's
 input as well as incoming messages on the chat socket.
 -----------------------------------------------------------*/
 void Client::StartChat() {
-	bool chatting = true;
+	volatile bool chatting = true;
 
 	fd_set fileDescriptors;
 	while(chatting) {
@@ -201,11 +201,13 @@ message from the chat server.
 -----------------------------------------------------------*/
 bool Client::HandleReceivedMessage() {
 	Message *receivedMessage = Message::Read(m_socketDescriptor);
-	cout << receivedMessage->GetBody() << endl;
 
 	if(receivedMessage->GetType() == SERVER_ERROR) {
+		cout << "Error: " << receivedMessage->GetBody() << endl;
 		return false;
+	} else {
+		cout << receivedMessage->GetBody() << endl;
+		return true;
 	}
-	return true;
 }
 

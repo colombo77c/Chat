@@ -185,14 +185,28 @@ and broadcasting the user's arrival to other connected users.
 -----------------------------------------------------------*/
 void Server::Login(Message *message, int sendingDescriptor) {
 	string username = message->GetBody();
+
+	//Check if username already present
+	map<string, int>::iterator findUsernameIt = m_reverseChatMap.find(username);
+	if(findUsernameIt != m_reverseChatMap.end()) {
+		Message invalidLogin;
+		invalidLogin.SetBody("There is already a user with username: " + username);
+		invalidLogin.SetType(SERVER_ERROR);
+		invalidLogin.Write(sendingDescriptor);
+		return;
+	}
+
 	cout << "Logging in user ";
 	cout << username << " at descriptor ";
 	cout << sendingDescriptor << endl;
 
+	
+
+	m_messagesLock.lock();
 	m_chatMap[sendingDescriptor] = username;
 	m_reverseChatMap[username] = sendingDescriptor;
 
-	m_messagesLock.lock();
+
 	for(vector<string>::reverse_iterator iter = m_pastMessages.rbegin(); 
 		iter != m_pastMessages.rend(); 
 		++iter) {
