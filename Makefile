@@ -28,5 +28,5 @@ util.o: $(SRC)/util.cpp $(SRC)/util.h
 
 clean:
 	rm -rf *.o
-	rm server
-	rm client
+	-rm server
+	-rm client

@@ -33,7 +33,20 @@ accordingly.
 
 using namespace std;
 
-#define MAX_INCOMING_CONN_QUEUE_SIZE 25
+const static int MAX_INCOMING_CONN_QUEUE_SIZE = 25;
+const static int DEFAULT_SAVED_MESSAGES = 10;
+
+const static string RED = "\033[31m";
+const static string GREEN = "\033[32m";
+const static string YELLOW = "\033[33m";
+const static string BLUE = "\033[34m";
+const static string MAGENTA = "\033[35m";
+const static string CYAN = "\033[36m";
+const static string BOLD_RED = "\033[1m\033[31m";
+const static string BOLD_GREEN = "\033[1m\033[31m";
+const static string BOLD_YELLOW = "\033[1m\033[31m";
+const static string BOLD_BLUE = "\033[1m\033[31m";
+const static string RESET = "\033[0m";
 
 
 /*-----------------------------------------------------------
@@ -55,18 +68,18 @@ Constructs a Server instance that listens on the given port
 -----------------------------------------------------------*/
 Server::Server(int port) {
 	m_port = port;
-	m_numSavedMessages = 10;
-	m_colors = { "\033[31m",           /* Red */
-		     "\033[32m",           /* Green */
-		     "\033[33m",           /* Yellow */
-		     "\033[34m",           /* Blue */
-		     "\033[35m",           /* Magenta */
-		     "\033[36m",           /* Cyan */
-		     "\033[1m\033[31m",    /* Bold Red */
-		     "\033[1m\033[31m",    /* Bold Green */
-		     "\033[1m\033[31m",    /* Bold Yellow */
-		     "\033[1m\033[31m",    /* Bold Blue */
-		     "\033[0m"             /* RESET */
+	m_numSavedMessages = DEFAULT_SAVED_MESSAGES;
+	m_colors = { RED,           /* Red */
+		     GREEN,           /* Green */
+		     YELLOW,           /* Yellow */
+		     BLUE,           /* Blue */
+		     MAGENTA,           /* Magenta */
+		     CYAN,           /* Cyan */
+		     BOLD_RED,    /* Bold Red */
+		     BOLD_GREEN,    /* Bold Green */
+		     BOLD_YELLOW,    /* Bold Yellow */
+		     BOLD_BLUE,    /* Bold Blue */
+		     RESET             /* RESET */
 	           };
 }
 
@@ -148,7 +161,7 @@ void Server::Start() {
 	-----------------------------------------------------------*/
 	int acceptedSocketDescriptor;
 	int clientSocketSize = sizeof(clientSocket);
-	cout << "Listening for connections ..." << endl;
+	cout << "Listening for connections on port " << m_port << " ..." << endl;
 	while(m_isRunning && (acceptedSocketDescriptor = 
 		accept(serverSocketDescriptor, 
 			(struct sockaddr *)&clientSocket, 
