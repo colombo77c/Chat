@@ -29,6 +29,7 @@ accordingly.
 
 #include "util.h"
 #include "message.h"
+#include "user_list.h"
 
 using namespace std;
 
@@ -55,6 +56,18 @@ Constructs a Server instance that listens on the given port
 Server::Server(int port) {
 	m_port = port;
 	m_numSavedMessages = 10;
+	m_colors = { "\033[31m",           /* Red */
+		     "\033[32m",           /* Green */
+		     "\033[33m",           /* Yellow */
+		     "\033[34m",           /* Blue */
+		     "\033[35m",           /* Magenta */
+		     "\033[36m",           /* Cyan */
+		     "\033[1m\033[31m",    /* Bold Red */
+		     "\033[1m\033[31m",    /* Bold Green */
+		     "\033[1m\033[31m",    /* Bold Yellow */
+		     "\033[1m\033[31m",    /* Bold Blue */
+		     "\033[0m"             /* RESET */
+	           };
 }
 
 /*-----------------------------------------------------------
@@ -258,7 +271,10 @@ the original sender.
 -----------------------------------------------------------*/
 void Server::BroadcastMessage(Message *message, int sendingDescriptor) {
 	string username = m_chatMap[sendingDescriptor];
-	message->SetBody(username + ": " + message->GetBody());
+	message->SetBody(m_colors[ m_reverseChatMap[username] ] +
+			 username + ": " +
+			 m_colors[10] +
+			 message->GetBody());
 
 	set<int> toBeDeleted;
 	for(map<int, string>::iterator iter = m_chatMap.begin(); iter != m_chatMap.end(); iter++) {
@@ -330,6 +346,40 @@ void Server::PrivateMessage(Message *message, int sendingDescriptor) {
 }
 
 /*-----------------------------------------------------------
+Check if user already connected to the server
+
+@param message - The message to be routed
+
+@param sendingDescriptor - File descriptor that the user is 
+	connected to the server on.
+-----------------------------------------------------------*/
+void Server::AttemptConnect(Message *m, int sendingDescriptor) {
+	string body = m->GetBody();
+	size_t firstIndex = body.find_first_of(":");
+	
+	string username = body.substr(0, firstIndex);
+	string password = body.substr(firstIndex + 1, string::npos);
+
+	Message attemptConnect;
+
+	if (m_userList.UserRegistered(username)) {
+	        if (m_userList.CheckUserPassword(username, password)) {
+		        attemptConnect.SetType(ATTEMPT_CONNECT);
+		}
+		else {
+		        attemptConnect.SetType(USER_ERROR);
+		}
+	}
+	else {
+	        m_userList.AddUser(username, password);
+	        attemptConnect.SetType(ATTEMPT_CONNECT);
+	}
+	
+	attemptConnect.SetBody("AttemptConnect");
+	attemptConnect.Write(sendingDescriptor);
+}
+
+/*-----------------------------------------------------------
 Handles the routing of messages to specific functions depending
 on the MessageType. 
 
@@ -352,6 +402,8 @@ bool Server::HandleMessage(Message *message, int sendingDescriptor) {
 	} else if(type == LOGOUT) {
 		Logout(message, sendingDescriptor);
 		return false;
+	} else if(type == ATTEMPT_CONNECT) {
+	        AttemptConnect(message, sendingDescriptor);
 	} else if(type == PRIVATE_MESSAGE) {
 		PrivateMessage(message, sendingDescriptor);
 	} else {

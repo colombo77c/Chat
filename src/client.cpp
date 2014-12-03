@@ -22,6 +22,7 @@ using namespace std;
 
 const string SOCKET_EXCEPTION = "Error creating server socket, please check your permissions";
 const string CONN_EXCEPTION = "Error connecting to server";
+const string LOGIN_EXCEPTION = "Username/Password invalid";
 const string PRIVATE_PREFIX = "private-";
 const int PRIVATE_PREFIX_LENGTH = 8;
 
@@ -74,9 +75,11 @@ void Client::Start() {
 
 	m_socketDescriptor = serverSocketDescriptor;
 
-	cout << "Connected to server ..." << endl;
+	if (!PromptLogin()) {
+		throw runtime_error(LOGIN_EXCEPTION);	  
+	}
 
-	PromptLogin();
+	cout << "Connected to server ..." << endl;
 	StartChat();
 
 	shutdown(serverSocketDescriptor, SHUT_RDWR);
@@ -102,10 +105,23 @@ string Client::GetUsername() {
 Prompts the user to enter their username and collects their
 input.
 -----------------------------------------------------------*/
-void Client::PromptLogin() {
-	cout << "Please enter your username: ";
+bool Client::PromptLogin() {
+        cout << "Please enter your username: ";
 	string username;
 	cin >> username;
+	cout << "Please enter your password: ";
+	string password;
+	cin >> password;
+
+	Message *userpswd = new Message;
+	userpswd->SetType(ATTEMPT_CONNECT);
+	userpswd->SetBody(username + ":" + password);
+	userpswd->Write(m_socketDescriptor);
+
+	Message *receivedMessage = Message::Read(m_socketDescriptor);
+	int type = receivedMessage->GetType();
+	if (type == USER_ERROR)
+	        return false;
 
 	cout << "Welcome to the chat room " << username << endl;
 
@@ -115,6 +131,8 @@ void Client::PromptLogin() {
 	login->SetType(LOGIN);
 	login->SetBody(username);
 	login->Write(m_socketDescriptor);
+
+	return true;
 }
 
 /*-----------------------------------------------------------

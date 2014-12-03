@@ -16,6 +16,7 @@ chat server for others to connect to.
 #include <mutex>
 
 #include "message.h"
+#include "user_list.h"
 
 using namespace std;
 
@@ -32,12 +33,14 @@ server.Start();
 class Server {
 private:
 	int m_port;
+	UserList m_userList;
 	map<int, string> m_chatMap;
 	map<string, int> m_reverseChatMap;
 	int m_numSavedMessages;
 	vector<string> m_pastMessages;
 	set<pthread_t> m_threadSet;
 	volatile bool m_isRunning;
+	vector<string> m_colors; 
 
 	//std:: is required to compile on eniac. Who knows why
 	std::mutex m_messagesLock;
@@ -49,6 +52,7 @@ private:
 	void BroadcastMessage(Message *m, int sendingDescriptor);
 	void PrivateMessage(Message *m, int sendingDescriptor);
 	bool HandleMessage(Message *m, int sendingDescriptor);
+	void AttemptConnect(Message *m, int sendingDescriptor);
 	void HandleConn(Server *server, int fileDescriptor);
 
 	void AddThread(pthread_t thread);

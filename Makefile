@@ -5,8 +5,8 @@ BIN=bin
 
 all: server client
 
-server: $(SRC)/server_main.cpp server.o message.o util.o
-	$(COMPILER) -o server $(SRC)/server_main.cpp server.o message.o util.o -lpthread
+server: $(SRC)/server_main.cpp server.o message.o user_list.o util.o
+	$(COMPILER) -o server $(SRC)/server_main.cpp server.o message.o util.o user_list.o -lpthread
 
 client: $(SRC)/client_main.cpp client.o message.o util.o
 	$(COMPILER) -o client $(SRC)/client_main.cpp client.o message.o util.o -lpthread
@@ -19,6 +19,9 @@ client.o: $(SRC)/client.cpp $(SRC)/client.h
 
 message.o: $(SRC)/message.cpp $(SRC)/message.h
 	$(COMPILER) -c $(SRC)/message.cpp
+
+user_list.o: $(SRC)/user_list.cpp $(SRC)/user_list.h
+	$(COMPILER) -c $(SRC)/user_list.cpp
 
 util.o: $(SRC)/util.cpp $(SRC)/util.h
 	$(COMPILER) -c $(SRC)/util.cpp

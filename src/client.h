@@ -32,7 +32,7 @@ private:
 	string GetUsername();
 	void SetUsername(string username);
 
-	void PromptLogin();
+	bool PromptLogin();
 	void StartChat();
 	bool HandleReceivedMessage();
 	bool HandleOutgoingMessage();

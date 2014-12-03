@@ -28,7 +28,9 @@ enum MessageType {
 	BROADCAST_MESSAGE,
 	PRIVATE_MESSAGE,
 	SERVER_ERROR,
-	CLIENT_ERROR
+	CLIENT_ERROR,
+	ATTEMPT_CONNECT,
+	USER_ERROR
 };
 
 /*-----------------------------------------------------------
