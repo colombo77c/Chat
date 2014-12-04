@@ -48,4 +48,10 @@ support for sending a message over a TCP socket. This means we
 would have had to develop our own protocol for sending such 
 buffers anyway. Additionally, we were sensitive to adding an
 additional library which violates the lightweight ideal we are
-striving towards. 
+striving towards.
+
+User List - We decided to implement a username/password login to
+keep track of the users that already logged in and the new ones.
+Everytime someone tries to connect to the char, we first check
+if the username was used before. If it is the case, we then check
+the password. If the user wasn't in our files, we create a new one.
