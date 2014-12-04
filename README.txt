@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------
----		Overview	 ----------------------------------------
+---	    Overview     ----------------------------------------
 -----------------------------------------------------------*/
 
 ChatMe is a chat program that allows people to send messages
@@ -12,7 +12,7 @@ bulky libraries that may not work on all unix-type systems.
 
 
 /*-----------------------------------------------------------
----		Development	 ----------------------------------------
+---	    Development  ----------------------------------------
 -----------------------------------------------------------*/
 
 This project was developed by Adam Colombo, Felipe Tulio, and
@@ -23,7 +23,7 @@ Felipe Tulio - Message class and password login
 Jinshuo Dong - Color output, testing
 
 /*-----------------------------------------------------------
----		Technical Accomplishments	 ------------------------
+---	    Technical Accomplishments    ------------------------
 -----------------------------------------------------------*/
 
 Server - The biggest challenge while building the server was 
